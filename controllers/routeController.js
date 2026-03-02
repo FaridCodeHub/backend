@@ -28,7 +28,7 @@ async function handleRouteRequest(req, res) {
         .includes("rain");
     }
 
-    // 🔁 Generate routes
+    // Generate routes
     for (const mode of modes) {
       const geojson = await getRoute(mode.profile, start, end);
 
@@ -54,8 +54,7 @@ async function handleRouteRequest(req, res) {
       results.push(routeData);
     }
 
-    // 🌍 Find car baseline
-// 🌍 Find car baseline
+    // Find car baseline
     const carRoute = results.find(r => r.mode === "car");
 
     if (carRoute) {
@@ -65,7 +64,7 @@ async function handleRouteRequest(req, res) {
     });
     }
 
-    // 🧮 Normalize + scoring
+    // Normalize + scoring
     const maxCarbon = Math.max(...results.map(r => r.carbon_kg));
     const maxTime = Math.max(...results.map(r => r.duration_min));
 
@@ -81,7 +80,7 @@ async function handleRouteRequest(req, res) {
         ((1 - greenPreference) * normalizedTime);
     });
 
-    // 🟢 Sort by smart score
+    // Sort by smart score
     results.sort((a, b) => a.score - b.score);
 
     res.json(results);
