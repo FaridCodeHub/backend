@@ -98,7 +98,7 @@ async function getTrips(req, res) {
     duration_minutes,
     route_co2_kg,
 
-    COALESCE(ST_AsGeoJSON(route_geometry)::json, '{}'::json) AS route
+    COALESCE(ST_AsGeoJSON(route_geometry)::json, '{}'::json) AS route,
 
     segments,
     created_at
