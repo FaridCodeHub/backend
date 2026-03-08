@@ -237,11 +237,11 @@ async function handleRouteRequest(req, res) {
     // Response
     // ---------------------------------------------------
 
-    res.json({
-      recommended,
-      routes: results
-    });
-
+    // res.json({
+    //   recommended,
+    //   routes: results
+    // });
+    res.json(results);
   } catch (error) {
 
     console.error(error.response?.data || error.message);
