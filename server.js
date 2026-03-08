@@ -1,9 +1,9 @@
 require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
-const pool = require("./db");
-const routeRoutes = require("./routes/routeRoutes");
-
+const pool = require("./src/config/db");
+const routeRoutes = require("./src/routes/routeRoutes");
+const tripRoutes = require("./src/routes/tripRoutes");
 const app = express();
 
 app.use(cors());
@@ -27,9 +27,10 @@ app.get("/test-db", async (req, res) => {
   }
 });
 
+
 // Use route routes
 app.use("/api", routeRoutes);
-
+app.use("/api", tripRoutes);
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
