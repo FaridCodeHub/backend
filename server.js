@@ -8,6 +8,8 @@ const initDB = require("./src/database/initDB");
 const routeRoutes = require("./src/routes/routeRoutes");
 const tripRoutes = require("./src/routes/tripRoutes");
 
+const savedRouteRoutes = require("./src/routes/savedRouteRoutes");
+
 const app = express();
 
 app.use(cors());
@@ -34,6 +36,7 @@ app.get("/test-db", async (req, res) => {
 // Routes
 app.use("/api", routeRoutes);
 app.use("/api", tripRoutes);
+app.use("/api", savedRouteRoutes);
 
 const PORT = process.env.PORT || 5000;
 
