@@ -156,7 +156,7 @@ async function handleRouteRequest(req, res) {
     return {
       mode: mode.name,
       distance_km: Number(distanceKm.toFixed(2)),
-      duration_min: Number(durationMin.toFixed(1)),
+      duration_min: Math.round(durationMin),
       carbon_kg: Number(calculateCarbon(mode.name, distanceKm).toFixed(3)),
       coordinates: feature.geometry.coordinates,
       segments,

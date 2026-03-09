@@ -1,7 +1,7 @@
 const pool = require("../config/db");
-//Save Search Trip
-async function saveTrip(req, res) {
 
+// Save Trip
+async function saveTrip(req, res) {
   try {
 
     const {
@@ -15,49 +15,64 @@ async function saveTrip(req, res) {
       distance_km,
       duration_minutes,
       route_co2_kg,
-      coordinates,
-      segments
+      carbon_saved_kg = 0
     } = req.body;
 
-    if (!user_id || !mode) {
-      return res.status(400).json({ error: "Missing required fields" });
+    if (!user_id || !start || !end || !mode || !distance_km || route_co2_kg === undefined) {
+      return res.status(400).json({
+        error: "Missing required fields"
+      });
     }
 
-    // Convert coordinates to LINESTRING
-    const lineString =
-      "LINESTRING(" +
-      coordinates.map(c => `${c[0]} ${c[1]}`).join(",") +
-      ")";
+    if (!Array.isArray(start) || !Array.isArray(end) || start.length !== 2 || end.length !== 2) {
+      return res.status(400).json({
+        error: "Invalid coordinates"
+      });
+    }
+
+    const startLng = Number(start[0]);
+    const startLat = Number(start[1]);
+    const endLng = Number(end[0]);
+    const endLat = Number(end[1]);
+
+    if (
+      isNaN(startLng) ||
+      isNaN(startLat) ||
+      isNaN(endLng) ||
+      isNaN(endLat)
+    ) {
+      return res.status(400).json({
+        error: "Coordinates must be numbers"
+      });
+    }
 
     await pool.query(
       `INSERT INTO trip_history
       (user_id, trip_name,
        start_name, end_name,
        start_point, end_point,
-       mode, distance_km, duration_minutes, route_co2_kg,
-       route_geometry, segments)
+       mode, distance_km,
+       duration_minutes, route_co2_kg,
+       carbon_saved_kg)
       VALUES
       ($1,$2,$3,$4,
        ST_SetSRID(ST_MakePoint($5,$6),4326),
        ST_SetSRID(ST_MakePoint($7,$8),4326),
-       $9,$10,$11,$12,
-       ST_GeomFromText($13,4326),
-       $14)`,
+       $9,$10,$11,$12,$13)`,
       [
         user_id,
         trip_name,
         start_name,
         end_name,
-        start[0],
-        start[1],
-        end[0],
-        end[1],
+        startLng,
+        startLat,
+        endLng,
+        endLat,
         mode,
         distance_km,
         duration_minutes,
         route_co2_kg,
-        lineString,
-        JSON.stringify(segments)
+        carbon_saved_kg
       ]
     );
 
@@ -65,56 +80,66 @@ async function saveTrip(req, res) {
 
   } catch (error) {
 
-    console.error(error);
-    res.status(500).json({ error: "Failed to save trip" });
+    console.error("Save Trip Error:", error);
+
+    res.status(500).json({
+      error: "Failed to save trip"
+    });
 
   }
-
 }
 
-//Get Trip History
-/*
-    // ST_AsGeoJSON(start_point)::json AS start,
-    // ST_AsGeoJSON(end_point)::json AS end,
-*/
+// Get Trip History
 async function getTrips(req, res) {
 
   try {
 
     const { userId } = req.params;
 
+    if (!userId) {
+      return res.status(400).json({
+        error: "User ID required"
+      });
+    }
+
     const result = await pool.query(
-    `SELECT
-    id,
-    trip_name,
-    start_name,
-    end_name,
+      `SELECT
+        id,
+        trip_name,
+        start_name,
+        end_name,
 
-    ARRAY[ST_X(start_point), ST_Y(start_point)] AS start,
-    ARRAY[ST_X(end_point), ST_Y(end_point)] AS end,
+        ARRAY[ST_X(start_point), ST_Y(start_point)] AS start,
+        ARRAY[ST_X(end_point), ST_Y(end_point)] AS end,
 
-    mode,
-    distance_km,
-    duration_minutes,
-    route_co2_kg,
+        mode,
+        distance_km,
+        duration_minutes,
+        route_co2_kg,
+        carbon_saved_kg,
+        created_at
 
-    COALESCE(ST_AsGeoJSON(route_geometry)::json, '{}'::json) AS route,
-
-    segments,
-    created_at
-
-    FROM trip_history
-    WHERE user_id = $1
-    ORDER BY created_at DESC`,
-    [userId]
+      FROM trip_history
+      WHERE user_id = $1
+      ORDER BY created_at DESC`,
+      [userId]
     );
 
-    res.json(result.rows);
+    const trips = result.rows.map(trip => ({
+      ...trip,
+      route_co2_kg: Number(trip.route_co2_kg),
+      carbon_saved_kg: Number(trip.carbon_saved_kg)
+    }));
+
+    res.json(trips);
 
   } catch (error) {
 
-    console.error(error);
-    res.status(500).json({ error: "Failed to fetch trips" });
+    console.error("Get Trips Error:", error);
+
+    res.status(500).json({
+      error: "Failed to fetch trips"
+    });
 
   }
 

@@ -1,9 +1,13 @@
 require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
+
 const pool = require("./src/config/db");
+const initDB = require("./src/database/initDB");
+
 const routeRoutes = require("./src/routes/routeRoutes");
 const tripRoutes = require("./src/routes/tripRoutes");
+
 const app = express();
 
 app.use(cors());
@@ -27,12 +31,19 @@ app.get("/test-db", async (req, res) => {
   }
 });
 
-
-// Use route routes
+// Routes
 app.use("/api", routeRoutes);
 app.use("/api", tripRoutes);
+
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+// Initialize DB then start server
+async function startServer() {
+  await initDB();
+
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+  });
+}
+
+startServer();
