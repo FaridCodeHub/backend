@@ -4,7 +4,7 @@ const cors = require("cors");
 
 const pool = require("./src/config/db");
 const initDB = require("./src/database/initDB");
-
+const authRoutes = require("./src/routes/authRoutes");
 const routeRoutes = require("./src/routes/routeRoutes");
 const tripRoutes = require("./src/routes/tripRoutes");
 
@@ -34,6 +34,7 @@ app.get("/test-db", async (req, res) => {
 });
 
 // Routes
+app.use("/api", authRoutes);
 app.use("/api", routeRoutes);
 app.use("/api", tripRoutes);
 app.use("/api", savedRouteRoutes);
