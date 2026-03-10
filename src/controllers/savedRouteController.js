@@ -188,5 +188,6 @@ async function updateCo2Score(req, res) {
 module.exports = {
   saveRoute,
   getSavedRoutes,
-  deleteSavedRoute
+  deleteSavedRoute,
+  updateCo2Score
 };

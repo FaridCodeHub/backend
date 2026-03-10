@@ -4,7 +4,8 @@ const router = express.Router();
 const {
   saveRoute,
   getSavedRoutes,
-  deleteSavedRoute
+  deleteSavedRoute,
+  updateCo2Score
 } = require("../controllers/savedRouteController");
 
 // Save route
