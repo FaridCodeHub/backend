@@ -154,6 +154,37 @@ async function deleteSavedRoute(req, res) {
 
 }
 
+// Update Last_Co2_Score
+async function updateCo2Score(req, res) {
+
+  try {
+
+    const { id } = req.params;
+    const { last_co2_score } = req.body;
+
+    await pool.query(
+      `UPDATE saved_routes
+       SET last_co2_score = $1
+       WHERE id = $2`,
+      [last_co2_score, id]
+    );
+
+    res.json({
+      message: "CO2 score updated"
+    });
+
+  } catch (error) {
+
+    console.error("Update CO2 Error:", error);
+
+    res.status(500).json({
+      error: "Failed to update CO2"
+    });
+
+  }
+
+}
+
 module.exports = {
   saveRoute,
   getSavedRoutes,
