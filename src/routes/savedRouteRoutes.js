@@ -1,3 +1,28 @@
+// const express = require("express");
+// const router = express.Router();
+
+// const {
+//   saveRoute,
+//   getSavedRoutes,
+//   deleteSavedRoute,
+//   updateCo2Score
+// } = require("../controllers/savedRouteController");
+
+// // Save route
+// router.post("/save-route", saveRoute);
+
+// // Get all saved routes of a user
+// router.get("/saved-routes/:userId", getSavedRoutes);
+
+// // Delete saved route
+// router.delete("/del-saved-route/:id", deleteSavedRoute);
+
+// //Update Last_Co2_Score
+// router.patch("/update-co2/:id", updateCo2Score);
+
+// module.exports = router;
+
+
 const express = require("express");
 const router = express.Router();
 
@@ -8,16 +33,14 @@ const {
   updateCo2Score
 } = require("../controllers/savedRouteController");
 
-// Save route
-router.post("/save-route", saveRoute);
+const authenticateToken = require("../middleware/authMiddleware");
 
-// Get all saved routes of a user
-router.get("/saved-routes/:userId", getSavedRoutes);
+router.post("/save-route", authenticateToken, saveRoute);
 
-// Delete saved route
-router.delete("/del-saved-route/:id", deleteSavedRoute);
+router.get("/saved-routes/:userId", authenticateToken, getSavedRoutes);
 
-//Update Last_Co2_Score
-router.patch("/update-co2/:id", updateCo2Score);
+router.delete("/del-saved-route/:id", authenticateToken, deleteSavedRoute);
+
+router.patch("/update-co2/:id", authenticateToken, updateCo2Score);
 
 module.exports = router;
