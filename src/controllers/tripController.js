@@ -4,7 +4,7 @@ const pool = require("../config/db");
 async function saveTrip(req, res) {
   try {
 
-    const {
+    let {
       user_id,
       trip_name,
       start,
@@ -17,7 +17,8 @@ async function saveTrip(req, res) {
       route_co2_kg,
       carbon_saved_kg = 0
     } = req.body;
-
+    if (start_name) start_name = start_name.split(",")[0].trim().slice(0,120);
+    if (end_name) end_name = end_name.split(",")[0].trim().slice(0,120);
     if (!user_id || !start || !end || !mode || !distance_km || route_co2_kg === undefined) {
       return res.status(400).json({
         error: "Missing required fields"
@@ -59,6 +60,7 @@ async function saveTrip(req, res) {
        ST_SetSRID(ST_MakePoint($5,$6),4326),
        ST_SetSRID(ST_MakePoint($7,$8),4326),
        $9,$10,$11,$12,$13)`,
+
       [
         user_id,
         trip_name,
