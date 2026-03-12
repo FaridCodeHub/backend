@@ -5,7 +5,7 @@ const emissionFactors = {
 };
 
 function calculateCarbon(mode, distanceKm) {
-  const factor = emissionFactors[mode] || 0.2;
+  const factor = emissionFactors[mode] ?? 0;
   return distanceKm * factor;
 }
 
